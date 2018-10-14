@@ -23,9 +23,10 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
     let username = Environment.get("DATABASE_USER") ?? "vapor"
     let databaseName = Environment.get("DATABASE_DB") ?? "vapor"
-    let password = Environment.get("DATABASE_PASSWORD") ?? "password"
+    // Using a password stopped working for some reason
+//    let password = Environment.get("DATABASE_PASSWORD") ?? "password"
     
-    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, username: username, database: databaseName, password:password)
+    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, username: username, database: databaseName)//, password:password)
     let postgres = PostgreSQLDatabase(config: databaseConfig)
 
     /// Register the configured SQLite database to the database config.
@@ -35,7 +36,11 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
 
     /// Configure migrations
     var migrations = MigrationConfig()
+    migrations.add(model: User.self, database: .psql)
     migrations.add(model: Acronym.self, database: .psql)
     services.register(migrations)
-
+    
+    var commandConfig = CommandConfig.default()
+    commandConfig.useFluentCommands()
+    services.register(commandConfig)
 }
